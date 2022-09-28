@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, getDocs, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase-config';
 import BooksTable from './components/BooksTable';
-import { Typography } from '@material-ui/core';
+import { CircularProgress, Typography } from '@material-ui/core';
 import './App.css';
 
 function App() {
@@ -34,7 +34,13 @@ function App() {
         Add your favorite books to the table
       </Typography>
 
-      <BooksTable data={booklists} />
+      {booklists && booklists?.length > 0 ? (
+        <BooksTable data={booklists} />
+      ) : (
+        <CircularProgress
+          style={{ position: 'absolute', top: '50%', left: '50%' }}
+        />
+      )}
     </div>
   );
 }
