@@ -1,14 +1,13 @@
 import React, { forwardRef } from 'react';
 import {
   addDoc,
-  arrayRemove,
   deleteDoc,
   doc,
   updateDoc,
+  collection,
 } from 'firebase/firestore';
 import MaterialTable from 'material-table';
 import AddBox from '@material-ui/icons/AddBox';
-import { Button } from '@material-ui/core';
 import ArrowDownward from '@material-ui/icons/ArrowDownward';
 import Check from '@material-ui/icons/Check';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';
@@ -23,7 +22,7 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
-import { db, handleSignOut } from '../firebase-config';
+import { db } from '../firebase-config';
 
 const tableIcons = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -56,15 +55,15 @@ var columns = [
   { title: 'Book Country', field: 'country' },
 ];
 
-const BooksTable = ({ data, userId }) => {
+const BooksTable = ({ data }) => {
   const handleRowAdd = async (newData, resolve) => {
-    const usersRef = doc(db, `users/${userId}`);
-    await addDoc(usersRef, newData);
+    const booksRef = collection(db, 'books');
+    await addDoc(booksRef, newData);
     resolve();
   };
   const handleRowUpdate = async (newData, oldData, resolve) => {
-    const userDoc = doc(db, `users/${userId}`, oldData?.id);
-    await updateDoc(userDoc, {
+    const bookDoc = doc(db, 'books', oldData?.id);
+    await updateDoc(bookDoc, {
       name: newData?.name ? newData?.name : oldData?.name,
       author: newData?.author ? newData?.author : oldData?.author,
       country: newData?.country ? newData?.country : oldData?.country,
@@ -73,21 +72,16 @@ const BooksTable = ({ data, userId }) => {
   };
 
   const handleRowDelete = async (oldData, resolve) => {
-    console.log('~ oldData', oldData);
-    const userBooksRef = doc(db, 'users', oldData?.id);
-
-    // await updateDoc(userBooksRef, {
-    //   regions: arrayRemove('east_coast'),
-    // });
-    // await deleteDoc(userDoc);
-    // resolve();
+    const bookDoc = doc(db, 'books', oldData?.id);
+    await deleteDoc(bookDoc);
+    resolve();
   };
 
   return (
     <>
       <MaterialTable
         style={{ margin: '30px 100px 0px' }}
-        title='User books'
+        title='List of books'
         columns={columns}
         data={data}
         icons={tableIcons}
@@ -109,14 +103,6 @@ const BooksTable = ({ data, userId }) => {
             }),
         }}
       />
-
-      <Button
-        style={{ marginTop: 20 }}
-        variant='outlined'
-        onClick={() => handleSignOut()}
-        color='secondary'>
-        Sign Out
-      </Button>
     </>
   );
 };
