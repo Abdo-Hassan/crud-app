@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import './App.css';
 import { db } from './firebase-config';
+import UsersTable from './components/UsersTable';
+import { CircularProgress, Typography } from '@mui/material';
+import './App.css';
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -15,11 +17,20 @@ function App() {
     getUsers();
   }, []);
 
-  console.log('users', users);
-
   return (
     <div className='App'>
-      <h1>Crud App</h1>
+      <Typography
+        variant='h4'
+        gutterBottom
+        style={{ marginTop: 30, fontWeight: 'bold' }}>
+        CRUD Application to add | edit | delete users
+      </Typography>
+
+      {users && users?.length > 0 ? (
+        <UsersTable data={users} />
+      ) : (
+        <CircularProgress />
+      )}
     </div>
   );
 }
