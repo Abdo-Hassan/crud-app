@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from './firebase-config';
 import UsersTable from './components/UsersTable';
-import { CircularProgress, Typography } from '@mui/material';
+import { CircularProgress, Typography } from '@material-ui/core';
 import './App.css';
 
 function App() {
@@ -24,7 +24,7 @@ function App() {
         variant='h4'
         gutterBottom
         style={{ marginTop: 30, fontWeight: 'bold' }}>
-        CRUD Application to add | edit | delete users
+        CRUD Application to handle Users
       </Typography>
 
       {users && users?.length > 0 ? (
