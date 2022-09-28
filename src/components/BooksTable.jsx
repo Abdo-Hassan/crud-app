@@ -1,14 +1,8 @@
 import React, { forwardRef } from 'react';
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  updateDoc,
-} from 'firebase/firestore';
-import { Button } from '@material-ui/core';
+import { addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import MaterialTable from 'material-table';
 import AddBox from '@material-ui/icons/AddBox';
+import { Button } from '@material-ui/core';
 import ArrowDownward from '@material-ui/icons/ArrowDownward';
 import Check from '@material-ui/icons/Check';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';
@@ -51,32 +45,32 @@ const tableIcons = {
 
 var columns = [
   { title: 'id', field: 'id', hidden: true },
-  { title: 'Name', field: 'name' },
-  { title: 'Email', field: 'email' },
-  { title: 'Country', field: 'country' },
+  { title: 'Book Name', field: 'name' },
+  { title: 'Book Author', field: 'author' },
+  { title: 'Book Country', field: 'country' },
 ];
 
-const UsersTable = ({ data }) => {
-  const usersRef = collection(db, 'users');
-
+const BooksTable = ({ data, userId }) => {
   const handleRowAdd = async (newData, resolve) => {
-    resolve();
+    const usersRef = doc(db, `users/${userId}`);
     await addDoc(usersRef, newData);
+    resolve();
   };
   const handleRowUpdate = async (newData, oldData, resolve) => {
-    resolve();
-    const userDoc = doc(db, 'users', oldData?.id);
+    const userDoc = doc(db, `users/${userId}`, oldData?.id);
     await updateDoc(userDoc, {
       name: newData?.name ? newData?.name : oldData?.name,
-      email: newData?.email ? newData?.email : oldData?.email,
+      author: newData?.author ? newData?.author : oldData?.author,
       country: newData?.country ? newData?.country : oldData?.country,
     });
+    resolve();
   };
 
   const handleRowDelete = async (oldData, resolve) => {
-    resolve();
+    console.log('~ oldData', oldData);
     const userDoc = doc(db, 'users', oldData?.id);
-    await deleteDoc(userDoc);
+    // await deleteDoc(userDoc);
+    // resolve();
   };
 
   return (
@@ -89,26 +83,25 @@ const UsersTable = ({ data }) => {
         icons={tableIcons}
         options={{ search: false, emptyRowsWhenPaging: false }}
         editable={{
-          onRowAdd: (newData) => {
+          onRowAdd: (newData) =>
             new Promise((resolve) => {
               handleRowAdd(newData, resolve);
-            });
-          },
-          onRowUpdate: (newData, oldData) => {
+            }),
+
+          onRowUpdate: (newData, oldData) =>
             new Promise((resolve) => {
               handleRowUpdate(newData, oldData, resolve);
-            });
-          },
-          onRowDelete: (oldData) => {
+            }),
+
+          onRowDelete: (oldData) =>
             new Promise((resolve) => {
               handleRowDelete(oldData, resolve);
-            });
-          },
+            }),
         }}
       />
 
       <Button
-        style={{ marginTop: 40 }}
+        style={{ marginTop: 20 }}
         variant='outlined'
         onClick={() => handleSignOut()}
         color='secondary'>
@@ -118,4 +111,4 @@ const UsersTable = ({ data }) => {
   );
 };
 
-export default UsersTable;
+export default BooksTable;

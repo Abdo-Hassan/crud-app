@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { auth, db, signInWithGoogle } from './firebase-config';
+import { auth, db, handleSignOut, signInWithGoogle } from './firebase-config';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
-import UsersTable from './components/UsersTable';
+import BooksTable from './components/BooksTable';
 import { CircularProgress, Typography } from '@material-ui/core';
 import Google from './assets/google.svg';
 import './App.css';
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
 
 function App() {
   const classes = useStyles();
-  const [users, setUsers] = useState([]);
+  const [userBooks, setUserBooks] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState('');
   const [loadingUserData, setLoadingUserData] = useState(true);
@@ -34,21 +34,25 @@ function App() {
         setIsLoggedIn(true);
         setLoadingUserData(false);
       } else {
-        console.log('USER SIGNED OUT');
+        console.log('user is not logged in');
         setIsLoggedIn(false);
+        setUserBooks([]);
         setUserId('');
       }
     });
   }, []);
 
-  const getUsers = async () => {
+  const getData = async () => {
     const data = await getDocs(usersRef);
-    setUsers(data?.docs?.map((doc) => ({ ...doc.data(), id: doc?.id })));
+    const dataRef = data?.docs?.map((doc) => ({ ...doc.data(), id: doc?.id }));
+    const userBooks = dataRef?.filter((data) => data?.id === userId)[0]?.books;
+    setUserBooks(userBooks);
   };
+
   useEffect(() => {
-    getUsers();
+    if (userId) getData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userId]);
 
   return (
     <div className='App'>
@@ -56,17 +60,11 @@ function App() {
         variant='h4'
         gutterBottom
         style={{ marginTop: 30, fontWeight: 'bold' }}>
-        CRUD Application to handle Users
+        Add your favorite books to the table
       </Typography>
 
       {isLoggedIn ? (
-        users && users?.length > 0 ? (
-          <UsersTable data={users} />
-        ) : (
-          <CircularProgress
-            style={{ position: 'absolute', top: '50%', left: '50%' }}
-          />
-        )
+        <BooksTable data={userBooks} userId={userId} />
       ) : (
         <Button
           variant='contained'
