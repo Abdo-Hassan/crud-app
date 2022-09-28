@@ -6,6 +6,7 @@ import {
   doc,
   updateDoc,
 } from 'firebase/firestore';
+import { Button } from '@material-ui/core';
 import MaterialTable from 'material-table';
 import AddBox from '@material-ui/icons/AddBox';
 import ArrowDownward from '@material-ui/icons/ArrowDownward';
@@ -22,7 +23,7 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
-import { db } from '../firebase-config';
+import { db, handleSignOut } from '../firebase-config';
 
 const tableIcons = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -79,31 +80,41 @@ const UsersTable = ({ data }) => {
   };
 
   return (
-    <MaterialTable
-      style={{ margin: '30px 100px 0px' }}
-      title='List of user information'
-      columns={columns}
-      data={data}
-      icons={tableIcons}
-      options={{ search: false, emptyRowsWhenPaging: false }}
-      editable={{
-        onRowAdd: (newData) => {
-          new Promise((resolve) => {
-            handleRowAdd(newData, resolve);
-          });
-        },
-        onRowUpdate: (newData, oldData) => {
-          new Promise((resolve) => {
-            handleRowUpdate(newData, oldData, resolve);
-          });
-        },
-        onRowDelete: (oldData) => {
-          new Promise((resolve) => {
-            handleRowDelete(oldData, resolve);
-          });
-        },
-      }}
-    />
+    <>
+      <MaterialTable
+        style={{ margin: '30px 100px 0px' }}
+        title='List of user information'
+        columns={columns}
+        data={data}
+        icons={tableIcons}
+        options={{ search: false, emptyRowsWhenPaging: false }}
+        editable={{
+          onRowAdd: (newData) => {
+            new Promise((resolve) => {
+              handleRowAdd(newData, resolve);
+            });
+          },
+          onRowUpdate: (newData, oldData) => {
+            new Promise((resolve) => {
+              handleRowUpdate(newData, oldData, resolve);
+            });
+          },
+          onRowDelete: (oldData) => {
+            new Promise((resolve) => {
+              handleRowDelete(oldData, resolve);
+            });
+          },
+        }}
+      />
+
+      <Button
+        style={{ marginTop: 40 }}
+        variant='outlined'
+        onClick={() => handleSignOut()}
+        color='secondary'>
+        Sign Out
+      </Button>
+    </>
   );
 };
 
