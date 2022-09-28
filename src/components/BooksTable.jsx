@@ -1,5 +1,11 @@
 import React, { forwardRef } from 'react';
-import { addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import {
+  addDoc,
+  arrayRemove,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from 'firebase/firestore';
 import MaterialTable from 'material-table';
 import AddBox from '@material-ui/icons/AddBox';
 import { Button } from '@material-ui/core';
@@ -68,7 +74,11 @@ const BooksTable = ({ data, userId }) => {
 
   const handleRowDelete = async (oldData, resolve) => {
     console.log('~ oldData', oldData);
-    const userDoc = doc(db, 'users', oldData?.id);
+    const userBooksRef = doc(db, 'users', oldData?.id);
+
+    // await updateDoc(userBooksRef, {
+    //   regions: arrayRemove('east_coast'),
+    // });
     // await deleteDoc(userDoc);
     // resolve();
   };
@@ -77,7 +87,7 @@ const BooksTable = ({ data, userId }) => {
     <>
       <MaterialTable
         style={{ margin: '30px 100px 0px' }}
-        title='List of user information'
+        title='User books'
         columns={columns}
         data={data}
         icons={tableIcons}

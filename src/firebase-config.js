@@ -1,6 +1,12 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from '@firebase/firestore';
+import {
+  getFirestore,
+  setDoc,
+  doc,
+  getDocs,
+  collection,
+} from '@firebase/firestore';
 import {
   getAuth,
   GoogleAuthProvider,
@@ -30,10 +36,19 @@ export const auth = getAuth();
 
 // sign in with google
 export const signInWithGoogle = () => {
-  //Call this function to get the user data
   signInWithPopup(auth, provider)
     .then((result) => {
-      console.log('result signInWithPopup', result);
+      const userId = result?.user?.uid;
+
+      // check if current user has ref in the data base
+      const usersRef = collection(db, 'users');
+      const data = getDocs(usersRef);
+      data.then((res) => {
+        const filter = res.docs.filter((doc) => doc?.id === userId);
+        if (filter?.length === 0) {
+          setDoc(doc(db, 'users', userId), {});
+        }
+      });
     })
     .catch((error) => {
       console.log('error signInWithPopup', error);

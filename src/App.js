@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { auth, db, handleSignOut, signInWithGoogle } from './firebase-config';
+import { auth, db, signInWithGoogle } from './firebase-config';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import BooksTable from './components/BooksTable';
@@ -17,27 +17,36 @@ const useStyles = makeStyles((theme) => ({
   googleImage: {
     marginRight: theme.spacing(1),
   },
+  userImage: {
+    width: 60,
+    height: 60,
+    borderRadius: '50%',
+  },
 }));
 
 function App() {
   const classes = useStyles();
-  const [userBooks, setUserBooks] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState('');
-  const [loadingUserData, setLoadingUserData] = useState(true);
+  const [userBooks, setUserBooks] = useState([]);
+  const [userInfo, setUserInfo] = useState({});
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loadingUserBooks, setLoadingUserBooks] = useState(true);
   const usersRef = collection(db, 'users');
+
+  console.log('userInfo', userInfo);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        setUserInfo(user);
         setUserId(user.uid);
         setIsLoggedIn(true);
-        setLoadingUserData(false);
       } else {
         console.log('user is not logged in');
         setIsLoggedIn(false);
         setUserBooks([]);
         setUserId('');
+        setUserInfo({});
       }
     });
   }, []);
@@ -62,6 +71,24 @@ function App() {
         style={{ marginTop: 30, fontWeight: 'bold' }}>
         Add your favorite books to the table
       </Typography>
+
+      {userInfo && (
+        <Typography
+          variant='subtitle2'
+          gutterBottom
+          style={{ marginTop: 5, fontWeight: 'bold' }}>
+          {userInfo?.displayName}
+        </Typography>
+      )}
+
+      {userInfo && (
+        <Typography
+          variant='subtitle2'
+          gutterBottom
+          style={{ marginTop: 5, fontWeight: 'bold' }}>
+          {userInfo?.email}
+        </Typography>
+      )}
 
       {isLoggedIn ? (
         <BooksTable data={userBooks} userId={userId} />
