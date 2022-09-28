@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 import Grid from '@mui/material/Grid';
 import MaterialTable from 'material-table';
 import AddBox from '@mui/icons-material/AddBox';
@@ -16,6 +17,7 @@ import Remove from '@mui/icons-material/Remove';
 import SaveAlt from '@mui/icons-material/SaveAlt';
 import Search from '@mui/icons-material/Search';
 import ViewColumn from '@mui/icons-material/ViewColumn';
+import { db } from '../firebase-config';
 
 const tableIcons = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -44,12 +46,30 @@ const tableIcons = {
 var columns = [
   { title: 'id', field: 'id', hidden: true },
   { title: 'Name', field: 'name' },
-  { title: 'Age', field: 'age' },
+  { title: 'Age', field: 'age', type: 'numeric' },
   { title: 'Email', field: 'email' },
 ];
 
 const UsersTable = ({ data }) => {
-  console.log('~ data', data);
+  const usersRef = collection(db, 'users');
+
+  const handleRowAdd = async (newData, resolve) => {
+    resolve();
+    await addDoc(usersRef, newData);
+  };
+  const handleRowUpdate = async (newData, oldData, resolve) => {
+    resolve();
+    const userDoc = doc(db, 'users', oldData?.id);
+    await updateDoc(userDoc, {
+      name: newData?.name,
+      age: newData?.age,
+      email: newData?.email,
+    });
+  };
+  const handleRowDelete = async (newData, resolve) => {
+    resolve();
+  };
+
   return (
     <MaterialTable
       style={{ margin: '30px 100px 0px' }}
@@ -58,20 +78,23 @@ const UsersTable = ({ data }) => {
       data={data}
       icons={tableIcons}
       options={{ search: false, emptyRowsWhenPaging: false }}
-      // editable={{
-      //   onRowUpdate: (newData, oldData) =>
-      //     new Promise((resolve) => {
-      //       handleRowUpdate(newData, oldData, resolve);
-      //     }),
-      //   onRowAdd: (newData) =>
-      //     new Promise((resolve) => {
-      //       handleRowAdd(newData, resolve);
-      //     }),
-      //   onRowDelete: (oldData) =>
-      //     new Promise((resolve) => {
-      //       handleRowDelete(oldData, resolve);
-      //     }),
-      // }}
+      editable={{
+        onRowAdd: (newData, oldData) => {
+          new Promise((resolve) => {
+            handleRowAdd(newData, resolve);
+          });
+        },
+        onRowUpdate: (newData, oldData) => {
+          new Promise((resolve) => {
+            handleRowUpdate(newData, oldData, resolve);
+          });
+        },
+        onRowDelete: (newData, oldData) => {
+          new Promise((resolve) => {
+            handleRowDelete(oldData, resolve);
+          });
+        },
+      }}
     />
   );
 };

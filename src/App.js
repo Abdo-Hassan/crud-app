@@ -9,12 +9,13 @@ function App() {
   const [users, setUsers] = useState([]);
   const usersRef = collection(db, 'users');
 
+  const getUsers = async () => {
+    const data = await getDocs(usersRef);
+    setUsers(data?.docs?.map((doc) => ({ ...doc.data(), id: doc?.id })));
+  };
   useEffect(() => {
-    const getUsers = async () => {
-      const data = await getDocs(usersRef);
-      setUsers(data?.docs?.map((doc) => ({ ...doc.data(), id: doc?.id })));
-    };
     getUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -29,7 +30,9 @@ function App() {
       {users && users?.length > 0 ? (
         <UsersTable data={users} />
       ) : (
-        <CircularProgress />
+        <CircularProgress
+          style={{ position: 'absolute', top: '50%', left: '50%' }}
+        />
       )}
     </div>
   );
