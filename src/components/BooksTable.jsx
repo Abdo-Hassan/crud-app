@@ -64,9 +64,9 @@ const BooksTable = ({ data }) => {
   const handleRowUpdate = async (newData, oldData, resolve) => {
     const bookDoc = doc(db, 'books', oldData?.id);
     await updateDoc(bookDoc, {
-      name: newData?.name ? newData?.name : oldData?.name,
-      author: newData?.author ? newData?.author : oldData?.author,
-      country: newData?.country ? newData?.country : oldData?.country,
+      name: newData?.name,
+      author: newData?.author,
+      country: newData?.country,
     });
     resolve();
   };
@@ -78,32 +78,30 @@ const BooksTable = ({ data }) => {
   };
 
   return (
-    <>
-      <MaterialTable
-        style={{ margin: '30px 100px 0px' }}
-        title='List of books'
-        columns={columns}
-        data={data}
-        icons={tableIcons}
-        options={{ search: false, emptyRowsWhenPaging: false }}
-        editable={{
-          onRowAdd: (newData) =>
-            new Promise((resolve) => {
-              handleRowAdd(newData, resolve);
-            }),
+    <MaterialTable
+      style={{ margin: '30px 100px 0px' }}
+      title='List of books'
+      columns={columns}
+      data={data}
+      icons={tableIcons}
+      options={{ search: false, emptyRowsWhenPaging: false }}
+      editable={{
+        onRowAdd: (newData) =>
+          new Promise((resolve) => {
+            handleRowAdd(newData, resolve);
+          }),
 
-          onRowUpdate: (newData, oldData) =>
-            new Promise((resolve) => {
-              handleRowUpdate(newData, oldData, resolve);
-            }),
+        onRowUpdate: (newData, oldData) =>
+          new Promise((resolve) => {
+            handleRowUpdate(newData, oldData, resolve);
+          }),
 
-          onRowDelete: (oldData) =>
-            new Promise((resolve) => {
-              handleRowDelete(oldData, resolve);
-            }),
-        }}
-      />
-    </>
+        onRowDelete: (oldData) =>
+          new Promise((resolve) => {
+            handleRowDelete(oldData, resolve);
+          }),
+      }}
+    />
   );
 };
 
